@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Seed configuration
+generator seed {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  username       String    @unique
+  email          String    @unique
+  password_hash  String
+  virtual_capital Float     @default(100000.00)
+  portfolios     Portfolio[]
+  trades         Trade[]
+  watchlists     Watchlist[]
+  alerts         Alert[]
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+}
+
+model Stock {
+  symbol            String     @id
+  name              String
+  sector            String
+  industry          String
+  market_cap        BigInt?
+  description       String?
+  ai_impact_score   Float      @default(0.0)
+  ai_score_rationale String?
+  last_price_update DateTime?
+  last_price        Float?
+  last_score_update DateTime?
+  portfolios        Portfolio[]
+  trades            Trade[]
+  news              News[]
+  watchlistItems    WatchlistItem[]
+  alerts            Alert[]
+}
+
+model Portfolio {
+  id               Int      @id @default(autoincrement())
+  user             User     @relation(fields: [user_id], references: [id])
+  user_id          Int
+  stock            Stock    @relation(fields: [stock_symbol], references: [symbol])
+  stock_symbol     String
+  shares           Int
+  average_cost_basis Float
+  updated_at       DateTime @updatedAt
+
+  @@unique([user_id, stock_symbol])
+}
+
+model Trade {
+  id           Int      @id @default(autoincrement())
+  user         User     @relation(fields: [user_id], references: [id])
+  user_id      Int
+  stock        Stock    @relation(fields: [stock_symbol], references: [symbol])
+  stock_symbol String
+  trade_type   String   // 'BUY' or 'SELL'
+  shares       Int
+  trade_price  Float
+  total_cost   Float
+  timestamp    DateTime @default(now())
+}
+
+model News {
+  id           Int      @id @default(autoincrement())
+  stock        Stock?   @relation(fields: [stock_symbol], references: [symbol])
+  stock_symbol String?
+  headline     String
+  url          String   @unique
+  source       String
+  publish_date DateTime
+  summary      String?
+  ai_keywords  String?
+}
+
+model Watchlist {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [user_id], references: [id])
+  user_id   Int
+  name      String
+  items     WatchlistItem[]
+  created_at DateTime  @default(now())
+}
+
+model WatchlistItem {
+  id           Int      @id @default(autoincrement())
+  watchlist    Watchlist @relation(fields: [watchlist_id], references: [id])
+  watchlist_id Int
+  stock        Stock     @relation(fields: [stock_symbol], references: [symbol])
+  stock_symbol String
+  added_at     DateTime @default(now())
+
+  @@unique([watchlist_id, stock_symbol])
+}
+
+model Alert {
+  id                Int      @id @default(autoincrement())
+  user              User     @relation(fields: [user_id], references: [id])
+  user_id           Int
+  stock             Stock    @relation(fields: [stock_symbol], references: [symbol])
+  stock_symbol      String
+  alert_type        String   // 'PRICE_ABOVE', 'PRICE_BELOW', etc.
+  threshold_value   Float?
+  change_threshold  Float?
+  is_active         Boolean  @default(true)
+  created_at        DateTime @default(now())
+  last_triggered_at DateTime?
+}

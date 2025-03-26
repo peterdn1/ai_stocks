@@ -58,6 +58,8 @@ export const stocksAPI = {
 export const portfolioAPI = {
   getPortfolio: () => api.get('/portfolio'),
   getTradeHistory: () => api.get('/portfolio/history'),
+  addStock: (symbol, shares) => api.post('/portfolio', { symbol, shares }),
+  removeStock: (symbol, shares) => api.delete(`/portfolio/${symbol}`, { data: { shares } }),
 };
 
 // Trading API

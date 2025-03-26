@@ -16,7 +16,8 @@ const HomePage = () => {
           limit: 5,
           offset: 0,
         });
-        setTopStocks(response.data.data);
+        console.log('Stock API response:', response.data);
+        setTopStocks(response.data);
         setIsLoading(false);
       } catch (err) {
         setError('Failed to fetch top stocks');

@@ -6,8 +6,10 @@ import { errorHandler } from './middleware/error';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
-// Import stock routes directly
-const stockRoutes = require('./routes/stock.routes');
+// Import routes
+import stockRoutes from './routes/stock.routes';
+// Import portfolio routes
+import portfolioRoutes from './routes/portfolio.routes';
 
 // Initialize Express app
 const app = express();
@@ -42,7 +44,7 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/stocks', stockRoutes);
 // app.use('/api/impact', impactRoutes);
-// app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/portfolio', portfolioRoutes);
 // app.use('/api/trade', tradeRoutes);
 // app.use('/api/watchlist', watchlistRoutes);
 // app.use('/api/alerts', alertRoutes);
